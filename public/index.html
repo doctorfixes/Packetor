@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packetor</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Packetor</h1>
+    <p class="tagline">Upload → Extract → Structure → Packet</p>
+  </header>
+
+  <main>
+    <section class="input-panel">
+      <h2>Input</h2>
+
+      <div class="upload-group">
+        <label for="fileInput">Upload a file (PDF, image, or text):</label>
+        <input type="file" id="fileInput" accept=".pdf,.txt,.png,.jpg,.jpeg" />
+      </div>
+
+      <div class="separator">— or —</div>
+
+      <div class="text-group">
+        <label for="textInput">Paste text directly:</label>
+        <textarea id="textInput" rows="8" placeholder="Paste document text here…"></textarea>
+      </div>
+
+      <div class="rulepack-group">
+        <label for="rulepackSelect">Rule‑pack (optional):</label>
+        <select id="rulepackSelect">
+          <option value="">None</option>
+          <option value="insurance/v1">Insurance v1</option>
+        </select>
+      </div>
+
+      <button id="generateBtn">Generate Packet</button>
+    </section>
+
+    <section class="output-panel">
+      <h2>Output</h2>
+      <div id="status" class="status"></div>
+      <pre id="outputBox" class="output-box"></pre>
+    </section>
+  </main>
+
+  <script>
+    const generateBtn = document.getElementById('generateBtn');
+    const fileInput = document.getElementById('fileInput');
+    const textInput = document.getElementById('textInput');
+    const rulepackSelect = document.getElementById('rulepackSelect');
+    const outputBox = document.getElementById('outputBox');
+    const statusEl = document.getElementById('status');
+
+    generateBtn.addEventListener('click', async () => {
+      outputBox.textContent = '';
+      statusEl.textContent = 'Generating…';
+      statusEl.className = 'status info';
+
+      try {
+        const file = fileInput.files && fileInput.files[0];
+        let response;
+
+        if (file) {
+          const formData = new FormData();
+          formData.append('file', file);
+          if (rulepackSelect.value) {
+            formData.append('rulepack', rulepackSelect.value);
+          }
+          response = await fetch('/api/packet/file', {
+            method: 'POST',
+            body: formData,
+          });
+        } else {
+          const text = textInput.value.trim();
+          if (!text) {
+            statusEl.textContent = 'Please upload a file or paste some text.';
+            statusEl.className = 'status error';
+            return;
+          }
+          response = await fetch('/api/packet/text', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, rulepack: rulepackSelect.value || undefined }),
+          });
+        }
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({ error: response.statusText }));
+          throw new Error(err.error || response.statusText);
+        }
+
+        const data = await response.json();
+        outputBox.textContent = data.packet || JSON.stringify(data, null, 2);
+        statusEl.textContent = 'Packet generated ✓';
+        statusEl.className = 'status success';
+      } catch (err) {
+        statusEl.textContent = 'Error: ' + err.message;
+        statusEl.className = 'status error';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "packetor",
+  "version": "0.2.0",
+  "description": "Packetor – deterministic packet generation engine.",
+  "scripts": {
+    "dev": "ts-node src/server/index.ts",
+    "cli": "ts-node src/cli/packetor.ts",
+    "build": "tsc",
+    "start": "node dist/server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/express-fileupload": "^1.5.1",
+    "@types/node": "^25.6.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0"
+  }
+}
