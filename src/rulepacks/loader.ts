@@ -11,7 +11,13 @@ export interface RulePack {
 }
 
 /** Allowlist of registered rule-pack identifiers (format: "<name>/<version>"). */
-const ALLOWED_RULEPACKS = new Set<string>(['insurance/v1']);
+const ALLOWED_RULEPACKS = new Set<string>([
+  'insurance/v1',
+  'healthcare/v1',
+  'logistics/v1',
+  'legal/v1',
+  'construction/v1',
+]);
 
 /** Safe segment: only alphanumerics, hyphens and underscores. */
 const SAFE_SEGMENT = /^[a-zA-Z0-9_-]+$/;
