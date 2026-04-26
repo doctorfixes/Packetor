@@ -30,12 +30,108 @@ header .tagline {
   margin-top: 0.25rem;
 }
 
+/* Landing page sections */
+
+.hero {
+  background: #1e3a8a;
+  color: #fff;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.hero-lead {
+  font-size: 1.2rem;
+  max-width: 720px;
+  margin: 0 auto 1rem;
+  line-height: 1.7;
+}
+
+.hero-cta {
+  font-size: 1rem;
+  opacity: 0.85;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.why,
+.how-it-works,
+.use-cases,
+.interfaces,
+.deterministic {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  width: 100%;
+}
+
+.why h2,
+.how-it-works h2,
+.use-cases h2,
+.interfaces h2,
+.deterministic h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e8eaf0;
+  padding-bottom: 0.5rem;
+  color: #1a1a2e;
+}
+
+.why p,
+.how-it-works p,
+.deterministic p {
+  line-height: 1.7;
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+
+.why ul,
+.use-cases ul,
+.interfaces ul {
+  padding-left: 1.5rem;
+  line-height: 2;
+  color: #333;
+}
+
+.why .deterministic-note {
+  font-weight: 600;
+  color: #1e3a8a;
+}
+
+.how-it-works ol {
+  padding-left: 1.5rem;
+  line-height: 2;
+  color: #333;
+}
+
+.how-it-works li,
+.use-cases li,
+.interfaces li {
+  margin-bottom: 0.25rem;
+}
+
+/* App UI section */
+
+.app-ui {
+  background: #fff;
+  border-top: 2px solid #e8eaf0;
+  padding: 2rem;
+}
+
+.app-ui > h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #1a1a2e;
+  text-align: center;
+}
+
 main {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
-  padding: 2rem;
-  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 @media (max-width: 768px) {
