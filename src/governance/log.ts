@@ -1,8 +1,5 @@
 import fs from 'fs';
-import path from 'path';
-
-const LOG_DIR = path.resolve(process.cwd(), 'logs');
-const LOG_FILE = path.join(LOG_DIR, 'packets.jsonl');
+import { tenantPath } from '../enterprise/storage';
 
 export interface PacketLogEntry {
   inputHash: string;
@@ -15,19 +12,17 @@ export interface PacketLogEntry {
 }
 
 /**
- * Append a governance log entry to logs/packets.jsonl.
+ * Append a governance log entry to the tenant's logs/packets.jsonl.
  * Creates the log directory if it does not exist.
  */
-export function logPacket(entry: PacketLogEntry): void {
+export function logPacket(entry: PacketLogEntry, tenant = 'default'): void {
   try {
-    if (!fs.existsSync(LOG_DIR)) {
-      fs.mkdirSync(LOG_DIR, { recursive: true });
-    }
+    const logFile = tenantPath(tenant, 'packets.jsonl');
     const record: PacketLogEntry = {
       ...entry,
       timestamp: new Date().toISOString(),
     };
-    fs.appendFileSync(LOG_FILE, JSON.stringify(record) + '\n', 'utf8');
+    fs.appendFileSync(logFile, JSON.stringify(record) + '\n', 'utf8');
   } catch (err) {
     // Governance logging must never crash the main process
     console.warn('Governance log write failed:', err);

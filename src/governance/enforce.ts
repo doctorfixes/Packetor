@@ -1,4 +1,8 @@
-export function enforceStrictMode({ summary, facts, timeline }) {
+export function enforceStrictMode({ summary, facts, timeline }: {
+  summary: string;
+  facts: unknown[];
+  timeline: unknown[];
+}): boolean {
   if (!summary || typeof summary !== "string") {
     throw new Error("Strict mode: summary missing or invalid");
   }
