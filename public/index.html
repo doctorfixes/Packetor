@@ -3,48 +3,113 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Packetor</title>
+  <title>Packetor — Deterministic Document Intelligence</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
     <h1>Packetor</h1>
-    <p class="tagline">Upload → Extract → Structure → Packet</p>
+    <p class="tagline">Clean, deterministic document intelligence.</p>
   </header>
 
-  <main>
-    <section class="input-panel">
-      <h2>Input</h2>
+  <section class="hero">
+    <p class="hero-lead">Packetor turns messy documents into clean, structured, audit‑ready packets — automatically, deterministically, and with full governance logging.</p>
+    <p class="hero-cta">Upload a file. Paste text. Get a perfectly structured Markdown packet every time.</p>
+  </section>
 
-      <div class="upload-group">
-        <label for="fileInput">Upload a file (PDF, image, or text):</label>
-        <input type="file" id="fileInput" accept=".pdf,.txt,.png,.jpg,.jpeg" />
-      </div>
+  <section class="why">
+    <h2>Why Packetor exists</h2>
+    <p>Documents are chaotic. Audits are painful. Packetor makes them predictable.</p>
+    <p>It ingests PDFs, images, and raw text, extracts what matters, and produces a consistent, review‑ready packet containing:</p>
+    <ul>
+      <li>A clear summary</li>
+      <li>Key facts</li>
+      <li>A chronological timeline</li>
+      <li>Risk flags</li>
+      <li>Full governance metadata</li>
+    </ul>
+    <p class="deterministic-note">Every run is deterministic — the same input always produces the same output.</p>
+  </section>
 
-      <div class="separator">— or —</div>
+  <section class="how-it-works">
+    <h2>How it works</h2>
+    <ol>
+      <li><strong>Ingest</strong> — Upload a file or paste text. Packetor normalizes the input and prepares it for extraction.</li>
+      <li><strong>Extract</strong> — PDFs are parsed with high‑fidelity text extraction. Images flow through an OCR‑ready pipeline.</li>
+      <li><strong>Structure</strong> — Packetor identifies key facts, dates and events, narrative flow, and important signals, then assembles a clean, structured packet.</li>
+      <li><strong>Apply Rule‑Pack</strong> (optional) — Choose a domain: Insurance, Healthcare, Legal, Logistics, or Construction. Rule‑packs enrich the packet with domain‑specific logic.</li>
+      <li><strong>Govern</strong> — Every packet is hashed, drift‑checked, strict‑mode validated, and logged to a tenant‑scoped audit trail.</li>
+      <li><strong>Output</strong> — Packetor renders a readable Markdown packet — ready for review, compliance, or downstream automation.</li>
+    </ol>
+  </section>
 
-      <div class="text-group">
-        <label for="textInput">Paste text directly:</label>
-        <textarea id="textInput" rows="8" placeholder="Paste document text here…"></textarea>
-      </div>
+  <section class="use-cases">
+    <h2>Built for teams that need clarity</h2>
+    <ul>
+      <li>Claims &amp; underwriting</li>
+      <li>Legal operations</li>
+      <li>Healthcare administration</li>
+      <li>Logistics &amp; compliance</li>
+      <li>Enterprise workflows</li>
+      <li>AI/LLM preprocessing pipelines</li>
+    </ul>
+  </section>
 
-      <div class="rulepack-group">
-        <label for="rulepackSelect">Rule‑pack (optional):</label>
-        <select id="rulepackSelect">
-          <option value="">None</option>
-          <option value="insurance/v1">Insurance v1</option>
-        </select>
-      </div>
+  <section class="interfaces">
+    <h2>Interfaces</h2>
+    <ul>
+      <li><strong>REST API</strong> — integrate anywhere</li>
+      <li><strong>CLI</strong> — automate pipelines</li>
+      <li><strong>Browser UI</strong> — simple and fast</li>
+    </ul>
+  </section>
 
-      <button id="generateBtn">Generate Packet</button>
-    </section>
+  <section class="deterministic">
+    <h2>Deterministic by design</h2>
+    <p>Packetor is engineered for environments where reproducibility matters, audits matter, governance matters, and correctness matters. No randomness. No surprises.</p>
+  </section>
 
-    <section class="output-panel">
-      <h2>Output</h2>
-      <div id="status" class="status"></div>
-      <pre id="outputBox" class="output-box"></pre>
-    </section>
-  </main>
+  <section class="app-ui">
+    <h2>Try it now</h2>
+
+    <main>
+      <section class="input-panel">
+        <h2>Input</h2>
+
+        <div class="upload-group">
+          <label for="fileInput">Upload a file (PDF, image, or text):</label>
+          <input type="file" id="fileInput" accept=".pdf,.txt,.png,.jpg,.jpeg" />
+        </div>
+
+        <div class="separator">— or —</div>
+
+        <div class="text-group">
+          <label for="textInput">Paste text directly:</label>
+          <textarea id="textInput" rows="8" placeholder="Paste document text here…"></textarea>
+        </div>
+
+        <div class="rulepack-group">
+          <label for="rulepackSelect">Rule‑pack (optional):</label>
+          <select id="rulepackSelect">
+            <option value="">None</option>
+            <option value="insurance/v1">Insurance v1</option>
+            <option value="healthcare/v1">Healthcare v1</option>
+            <option value="legal/v1">Legal v1</option>
+            <option value="logistics/v1">Logistics v1</option>
+            <option value="construction/v1">Construction v1</option>
+          </select>
+        </div>
+
+        <button id="generateBtn">Generate Packet</button>
+      </section>
+
+      <section class="output-panel">
+        <h2>Output</h2>
+        <div id="status" class="status"></div>
+        <pre id="outputBox" class="output-box"></pre>
+      </section>
+    </main>
+  </section>
 
   <script>
     const generateBtn = document.getElementById('generateBtn');
