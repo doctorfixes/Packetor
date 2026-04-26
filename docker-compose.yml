@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  packetor:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      STRICT_MODE: "true"
+    volumes:
+      - ./tenants:/app/tenants
+      - ./logs:/app/logs

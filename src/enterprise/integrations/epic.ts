@@ -1,5 +1,5 @@
 /**
- * Epic EHR integration stub (v1.0 placeholder).
+ * Epic EHR integration adapter (v1.0).
  *
  * Provides the interface for sending and retrieving clinical packets
  * via Epic's FHIR R4 / REST APIs.
@@ -9,6 +9,15 @@
  * 2. Store OAuth2 credentials in environment variables
  * 3. Replace stub bodies with real FHIR API calls
  */
+
+import { StructuredPacket } from '../../structuring/structurePacket';
+import {
+  IntegrationAdapter,
+  IntegrationResult,
+  IntegrationLogEntry,
+  logIntegration,
+  packetHash,
+} from './adapter';
 
 export interface EpicConfig {
   fhirBaseUrl: string;
@@ -49,4 +58,45 @@ export async function fetchFromEpic(
     `Epic stub: would GET ${resourceType}/${resourceId} from ${config.fhirBaseUrl}`
   );
   return '';
+}
+
+/**
+ * IntegrationAdapter implementation for Epic FHIR.
+ * Resolves configuration from environment variables at send-time.
+ */
+export class EpicAdapter implements IntegrationAdapter {
+  readonly name = 'epic';
+
+  constructor(private readonly config: EpicConfig) {}
+
+  async send(packet: StructuredPacket, tenant: string): Promise<IntegrationResult> {
+    const start = Date.now();
+    let responseId = '';
+    let resourceUrl = '';
+    let status: IntegrationLogEntry['status'] = 'success';
+    let error: string | undefined;
+
+    try {
+      resourceUrl = await sendToEpic(this.config, 'DocumentReference', { body: packet.rawText });
+      responseId = resourceUrl.split('/').pop() || '';
+    } catch (err) {
+      status = 'error';
+      error = err instanceof Error ? err.message : String(err);
+      throw err;
+    } finally {
+      const entry: IntegrationLogEntry = {
+        timestamp: new Date().toISOString(),
+        tenant,
+        integration: this.name,
+        status,
+        latencyMs: Date.now() - start,
+        packetHash: packetHash(packet),
+        responseId,
+        ...(error !== undefined ? { error } : {}),
+      };
+      logIntegration(entry);
+    }
+
+    return { responseId, resourceUrl };
+  }
 }

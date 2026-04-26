@@ -69,58 +69,314 @@
     <p>Packetor is engineered for environments where reproducibility matters, audits matter, governance matters, and correctness matters. No randomness. No surprises.</p>
   </section>
 
+  <!-- App UI — tabbed multi-page interface -->
   <section class="app-ui">
-    <h2>Try it now</h2>
+    <nav class="app-nav">
+      <button class="nav-btn active" data-page="home">Home</button>
+      <button class="nav-btn" data-page="viewer">Packet Viewer</button>
+      <button class="nav-btn" data-page="history">History</button>
+      <button class="nav-btn" data-page="settings">Settings</button>
+      <button class="nav-btn" data-page="admin">Admin</button>
+    </nav>
 
-    <main>
-      <section class="input-panel">
-        <h2>Input</h2>
+    <!-- ── Home ──────────────────────────────────────────────────── -->
+    <div id="page-home" class="page active">
+      <h2>Generate Packet</h2>
+      <main>
+        <section class="input-panel">
+          <h2>Input</h2>
 
-        <div class="upload-group">
-          <label for="fileInput">Upload a file (PDF, image, or text):</label>
-          <input type="file" id="fileInput" accept=".pdf,.txt,.png,.jpg,.jpeg" />
-        </div>
+          <div class="upload-group">
+            <label for="fileInput">Upload a file (PDF, image, or text):</label>
+            <input type="file" id="fileInput" accept=".pdf,.txt,.png,.jpg,.jpeg" />
+          </div>
 
-        <div class="separator">— or —</div>
+          <div class="separator">— or —</div>
 
-        <div class="text-group">
-          <label for="textInput">Paste text directly:</label>
-          <textarea id="textInput" rows="8" placeholder="Paste document text here…"></textarea>
-        </div>
+          <div class="text-group">
+            <label for="textInput">Paste text directly:</label>
+            <textarea id="textInput" rows="8" placeholder="Paste document text here…"></textarea>
+          </div>
 
-        <div class="rulepack-group">
-          <label for="rulepackSelect">Rule‑pack (optional):</label>
-          <select id="rulepackSelect">
-            <option value="">None</option>
-            <option value="insurance/v1">Insurance v1</option>
-            <option value="healthcare/v1">Healthcare v1</option>
-            <option value="legal/v1">Legal v1</option>
-            <option value="logistics/v1">Logistics v1</option>
-            <option value="construction/v1">Construction v1</option>
+          <div class="rulepack-group">
+            <label for="rulepackSelect">Rule‑pack (optional):</label>
+            <select id="rulepackSelect">
+              <option value="">None</option>
+              <option value="insurance/v1">Insurance v1</option>
+              <option value="healthcare/v1">Healthcare v1</option>
+              <option value="legal/v1">Legal v1</option>
+              <option value="logistics/v1">Logistics v1</option>
+              <option value="construction/v1">Construction v1</option>
+            </select>
+          </div>
+
+          <button id="generateBtn" class="btn-primary">Generate Packet</button>
+        </section>
+
+        <section class="output-panel">
+          <h2>Output</h2>
+          <div id="status" class="status"></div>
+          <pre id="outputBox" class="output-box"></pre>
+          <div id="outputActions" class="output-actions" style="display:none">
+            <button id="viewPacketBtn" class="btn-secondary">View in Packet Viewer</button>
+            <button id="downloadBtn" class="btn-secondary">Download .md</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ── Packet Viewer ─────────────────────────────────────────── -->
+    <div id="page-viewer" class="page">
+      <div class="page-toolbar">
+        <button class="btn-ghost" id="viewerBackBtn">← Back</button>
+        <button class="btn-secondary" id="viewerDownloadBtn">Download</button>
+        <div class="send-group">
+          <select id="sendToSelect">
+            <option value="">Send to…</option>
+            <option value="sharepoint">SharePoint</option>
+            <option value="salesforce">Salesforce</option>
+            <option value="procore">Procore</option>
+            <option value="epic">Epic (FHIR)</option>
           </select>
+          <button class="btn-primary" id="sendToBtn">Send</button>
         </div>
+      </div>
+      <div id="viewerContent" class="markdown-preview output-box"></div>
+    </div>
 
-        <button id="generateBtn">Generate Packet</button>
-      </section>
+    <!-- ── History ───────────────────────────────────────────────── -->
+    <div id="page-history" class="page">
+      <h2>Packet History</h2>
+      <div class="history-toolbar">
+        <input type="search" id="historySearch" placeholder="Search by hash, date, or rule‑pack…" />
+      </div>
+      <div id="historyList" class="history-list">
+        <p class="empty-state">No packets in history yet. Generate a packet on the Home tab to get started.</p>
+      </div>
+    </div>
 
-      <section class="output-panel">
-        <h2>Output</h2>
-        <div id="status" class="status"></div>
-        <pre id="outputBox" class="output-box"></pre>
-      </section>
-    </main>
+    <!-- ── Settings ──────────────────────────────────────────────── -->
+    <div id="page-settings" class="page">
+      <h2>Settings</h2>
+      <div class="settings-group">
+        <div class="settings-row">
+          <label for="strictModeToggle">Strict Mode</label>
+          <label class="toggle">
+            <input type="checkbox" id="strictModeToggle" />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <p class="settings-hint">When enabled, packets that fail validation are rejected rather than passed with warnings.</p>
+      </div>
+
+      <div class="settings-group">
+        <label for="defaultRulepack">Default Rule‑Pack</label>
+        <select id="defaultRulepack">
+          <option value="">None</option>
+          <option value="insurance/v1">Insurance v1</option>
+          <option value="healthcare/v1">Healthcare v1</option>
+          <option value="legal/v1">Legal v1</option>
+          <option value="logistics/v1">Logistics v1</option>
+          <option value="construction/v1">Construction v1</option>
+        </select>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-section-title">Integration Credentials</h3>
+        <p class="settings-hint">Credentials are stored per-tenant in the server environment. Configure them via environment variables or a secrets manager — do not enter them here.</p>
+        <table class="creds-table">
+          <thead><tr><th>System</th><th>Protocol</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>SharePoint</td><td>Microsoft Graph</td><td><span class="badge badge-pending">Configured server-side</span></td></tr>
+            <tr><td>Procore</td><td>REST / OAuth2</td><td><span class="badge badge-pending">Configured server-side</span></td></tr>
+            <tr><td>Epic</td><td>FHIR R4</td><td><span class="badge badge-pending">Configured server-side</span></td></tr>
+            <tr><td>Salesforce</td><td>REST / OAuth2</td><td><span class="badge badge-pending">Configured server-side</span></td></tr>
+            <tr><td>S3 / Blob / GCS</td><td>Native SDKs</td><td><span class="badge badge-pending">Configured server-side</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button class="btn-primary" id="saveSettingsBtn">Save Settings</button>
+      <div id="settingsStatus" class="status" style="margin-top:0.5rem"></div>
+    </div>
+
+    <!-- ── Admin ─────────────────────────────────────────────────── -->
+    <div id="page-admin" class="page">
+      <h2>Admin</h2>
+      <div class="admin-grid">
+        <div class="admin-card">
+          <h3>Tenants</h3>
+          <p>Manage tenant registrations and storage paths.</p>
+          <ul id="adminTenantList" class="admin-list"><li class="empty-state">default</li></ul>
+        </div>
+        <div class="admin-card">
+          <h3>Users</h3>
+          <p>User accounts are managed via your Identity Provider (Azure AD, Okta, Google Workspace).</p>
+        </div>
+        <div class="admin-card">
+          <h3>API Keys</h3>
+          <p>API keys are issued server-side. Rotate them via the Packetor CLI or your secrets manager.</p>
+        </div>
+        <div class="admin-card">
+          <h3>Governance Logs</h3>
+          <p>Full NDJSON audit logs are written to <code>tenants/&lt;id&gt;/logs/packets.jsonl</code>. Integration call logs are emitted to stdout.</p>
+        </div>
+      </div>
+    </div>
   </section>
 
+  <style>
+    /* ── Nav ── */
+    .app-nav {
+      display: flex;
+      gap: 0.25rem;
+      background: #1a1a2e;
+      padding: 0.75rem 2rem 0;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      padding: 0.5rem 1.1rem;
+      border: none;
+      border-radius: 6px 6px 0 0;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    .nav-btn.active { background: #f5f7fa; color: #1a1a2e; }
+
+    /* ── Pages ── */
+    .page { display: none; padding: 1.5rem 2rem; }
+    .page.active { display: block; }
+    .page > h2 {
+      font-size: 1.2rem; font-weight: 700; margin-bottom: 1.2rem;
+      color: #1a1a2e; border-bottom: 2px solid #e8eaf0; padding-bottom: 0.5rem;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      padding: 0.65rem 1.3rem; background: #2563eb; color: #fff;
+      border: none; border-radius: 6px; font-size: 0.92rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary {
+      padding: 0.55rem 1.1rem; background: #f1f5f9; color: #1a1a2e;
+      border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem;
+      font-weight: 500; cursor: pointer; transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-ghost {
+      padding: 0.55rem 0.9rem; background: transparent; color: #2563eb;
+      border: none; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+    }
+
+    /* ── Output actions ── */
+    .output-actions { display: flex; gap: 0.75rem; margin-top: 0.5rem; flex-wrap: wrap; }
+
+    /* ── Packet Viewer ── */
+    .page-toolbar {
+      display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;
+      margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e8eaf0;
+    }
+    .send-group { display: flex; gap: 0.5rem; align-items: center; margin-left: auto; }
+    .send-group select {
+      padding: 0.5rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px;
+      font-size: 0.88rem; background: #fafafa;
+    }
+    .markdown-preview { white-space: pre-wrap; min-height: 400px; }
+
+    /* ── History ── */
+    .history-toolbar { margin-bottom: 1rem; }
+    .history-toolbar input[type="search"] {
+      width: 100%; max-width: 480px; padding: 0.55rem 0.9rem;
+      border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem;
+    }
+    .history-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .history-item {
+      display: flex; gap: 1.5rem; align-items: center;
+      padding: 0.75rem 1rem; background: #fff; border: 1px solid #e8eaf0;
+      border-radius: 6px; font-size: 0.88rem; cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .history-item:hover { border-color: #2563eb; }
+    .history-item .hi-date { color: #64748b; min-width: 10ch; }
+    .history-item .hi-name { flex: 1; font-weight: 500; }
+    .history-item .hi-pack { color: #2563eb; }
+    .empty-state { color: #94a3b8; font-style: italic; font-size: 0.88rem; }
+
+    /* ── Settings ── */
+    .settings-group {
+      background: #fff; border: 1px solid #e8eaf0; border-radius: 8px;
+      padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+    }
+    .settings-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+    .settings-row label:first-child { font-weight: 600; font-size: 0.92rem; }
+    .settings-hint { font-size: 0.82rem; color: #64748b; margin-top: 0.25rem; }
+    .settings-section-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
+    .toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0; background: #cbd5e1; border-radius: 24px; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-track::before {
+      content: ''; position: absolute; height: 18px; width: 18px;
+      left: 3px; bottom: 3px; background: #fff; border-radius: 50%;
+      transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle input:checked + .toggle-track { background: #2563eb; }
+    .toggle input:checked + .toggle-track::before { transform: translateX(20px); }
+    .creds-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.75rem; }
+    .creds-table th { text-align: left; padding: 0.4rem 0.75rem; background: #f8fafc; border-bottom: 2px solid #e8eaf0; }
+    .creds-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #f1f5f9; }
+    .badge { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.78rem; font-weight: 600; }
+    .badge-pending { background: #fef9c3; color: #854d0e; }
+
+    /* ── Admin ── */
+    .admin-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem;
+    }
+    .admin-card {
+      background: #fff; border: 1px solid #e8eaf0; border-radius: 8px; padding: 1.25rem;
+    }
+    .admin-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .admin-card p { font-size: 0.83rem; color: #64748b; margin-bottom: 0.5rem; }
+    .admin-list { padding-left: 1rem; font-size: 0.85rem; line-height: 2; color: #334155; }
+    .admin-card code { font-size: 0.8rem; background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 3px; }
+  </style>
+
   <script>
-    const generateBtn = document.getElementById('generateBtn');
-    const fileInput = document.getElementById('fileInput');
-    const textInput = document.getElementById('textInput');
+    // ── Page routing ──────────────────────────────────────────────
+    const pages = document.querySelectorAll('.page');
+    const navBtns = document.querySelectorAll('.nav-btn');
+
+    function showPage(id) {
+      pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + id));
+      navBtns.forEach(b => b.classList.toggle('active', b.dataset.page === id));
+    }
+
+    navBtns.forEach(btn => btn.addEventListener('click', () => showPage(btn.dataset.page)));
+
+    // ── Packet state ──────────────────────────────────────────────
+    let lastPacket = '';
+    const packetHistory = [];
+
+    // ── Home: generate packet ─────────────────────────────────────
+    const generateBtn   = document.getElementById('generateBtn');
+    const fileInput     = document.getElementById('fileInput');
+    const textInput     = document.getElementById('textInput');
     const rulepackSelect = document.getElementById('rulepackSelect');
-    const outputBox = document.getElementById('outputBox');
-    const statusEl = document.getElementById('status');
+    const outputBox     = document.getElementById('outputBox');
+    const statusEl      = document.getElementById('status');
+    const outputActions = document.getElementById('outputActions');
 
     generateBtn.addEventListener('click', async () => {
       outputBox.textContent = '';
+      outputActions.style.display = 'none';
       statusEl.textContent = 'Generating…';
       statusEl.className = 'status info';
 
@@ -131,13 +387,8 @@
         if (file) {
           const formData = new FormData();
           formData.append('file', file);
-          if (rulepackSelect.value) {
-            formData.append('rulepack', rulepackSelect.value);
-          }
-          response = await fetch('/api/packet/file', {
-            method: 'POST',
-            body: formData,
-          });
+          if (rulepackSelect.value) formData.append('rulepack', rulepackSelect.value);
+          response = await fetch('/api/packet/file', { method: 'POST', body: formData });
         } else {
           const text = textInput.value.trim();
           if (!text) {
@@ -158,13 +409,136 @@
         }
 
         const data = await response.json();
-        outputBox.textContent = data.packet || JSON.stringify(data, null, 2);
+        lastPacket = data.packet || JSON.stringify(data, null, 2);
+        outputBox.textContent = lastPacket;
         statusEl.textContent = 'Packet generated ✓';
         statusEl.className = 'status success';
+        outputActions.style.display = 'flex';
+
+        // Add to history
+        const sourceName = file ? file.name : 'text-input';
+        const pack = rulepackSelect.value || 'none';
+        const entry = {
+          date: new Date().toLocaleDateString(),
+          name: sourceName,
+          pack,
+          content: lastPacket,
+        };
+        packetHistory.unshift(entry);
+        renderHistory();
       } catch (err) {
         statusEl.textContent = 'Error: ' + err.message;
         statusEl.className = 'status error';
       }
+    });
+
+    // ── View packet button ────────────────────────────────────────
+    document.getElementById('viewPacketBtn').addEventListener('click', () => {
+      if (lastPacket) {
+        document.getElementById('viewerContent').textContent = lastPacket;
+        showPage('viewer');
+      }
+    });
+
+    // ── Download button ───────────────────────────────────────────
+    function downloadPacket(content) {
+      const blob = new Blob([content], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'packet-' + Date.now() + '.md';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      if (lastPacket) downloadPacket(lastPacket);
+    });
+
+    // ── Viewer: back / download / send ────────────────────────────
+    document.getElementById('viewerBackBtn').addEventListener('click', () => showPage('home'));
+
+    document.getElementById('viewerDownloadBtn').addEventListener('click', () => {
+      const content = document.getElementById('viewerContent').textContent;
+      if (content) downloadPacket(content);
+    });
+
+    document.getElementById('sendToBtn').addEventListener('click', () => {
+      const target = document.getElementById('sendToSelect').value;
+      if (!target) {
+        alert('Please choose an integration target from the "Send to…" dropdown.');
+        return;
+      }
+      // Integration sending is handled server-side via POST /api/packet/send (future endpoint)
+      alert(`Send to ${target} — configure integration credentials server-side and wire up /api/packet/send.`);
+    });
+
+    // ── History ───────────────────────────────────────────────────
+    const historySearch = document.getElementById('historySearch');
+    const historyList   = document.getElementById('historyList');
+
+    function renderHistory(filter) {
+      const items = filter
+        ? packetHistory.filter(e =>
+            e.date.includes(filter) || e.name.toLowerCase().includes(filter.toLowerCase()) || e.pack.toLowerCase().includes(filter.toLowerCase())
+          )
+        : packetHistory;
+
+      if (items.length === 0) {
+        historyList.innerHTML = '<p class="empty-state">No packets found.</p>';
+        return;
+      }
+      historyList.innerHTML = items.map((e, i) =>
+        `<div class="history-item" data-idx="${i}" role="button" tabindex="0">
+          <span class="hi-date">${e.date}</span>
+          <span class="hi-name">${e.name}</span>
+          <span class="hi-pack">${e.pack}</span>
+        </div>`
+      ).join('');
+
+      historyList.querySelectorAll('.history-item').forEach(el => {
+        function openItem() {
+          const idx = parseInt(el.dataset.idx, 10);
+          const entry = items[idx];
+          if (entry) {
+            document.getElementById('viewerContent').textContent = entry.content;
+            showPage('viewer');
+          }
+        }
+        el.addEventListener('click', openItem);
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openItem(); }
+        });
+      });
+    }
+
+    historySearch.addEventListener('input', () => renderHistory(historySearch.value.trim()));
+
+    // ── Settings ─────────────────────────────────────────────────
+    const strictModeToggle = document.getElementById('strictModeToggle');
+    const defaultRulepack  = document.getElementById('defaultRulepack');
+    const saveSettingsBtn  = document.getElementById('saveSettingsBtn');
+    const settingsStatus   = document.getElementById('settingsStatus');
+
+    // Load persisted settings
+    (function loadSettings() {
+      const s = localStorage.getItem('packetor-settings');
+      if (!s) return;
+      try {
+        const v = JSON.parse(s);
+        if (typeof v.strictMode === 'boolean') strictModeToggle.checked = v.strictMode;
+        if (v.defaultRulepack) defaultRulepack.value = v.defaultRulepack;
+      } catch {}
+    })();
+
+    saveSettingsBtn.addEventListener('click', () => {
+      localStorage.setItem('packetor-settings', JSON.stringify({
+        strictMode: strictModeToggle.checked,
+        defaultRulepack: defaultRulepack.value,
+      }));
+      settingsStatus.textContent = 'Settings saved ✓';
+      settingsStatus.className = 'status success';
+      setTimeout(() => { settingsStatus.textContent = ''; settingsStatus.className = 'status'; }, 2500);
     });
   </script>
 </body>
