@@ -46,7 +46,7 @@ describe("ingestText()", () => {
     expect(result).toBe("First.\n\nSecond.");
   });
 
-  it("normalises whitespace inside each paragraph while keeping paragraph breaks", () => {
+  it("normalizes whitespace inside each paragraph while keeping paragraph breaks", () => {
     const result = ingestText("  Hello   world  \n\n  Foo   bar  ");
     expect(result).toBe("Hello world\n\nFoo bar");
   });
