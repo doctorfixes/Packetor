@@ -1,0 +1,6 @@
+{
+  "strictMode": true,
+  "logPackets": true,
+  "driftDetection": true,
+  "defaultTemplate": "generic@v1"
+}
