@@ -51,10 +51,13 @@ export function listPackets(tenantId: string): string[] {
 
 /**
  * Resolve a tenant-scoped file path, creating the parent directory if needed.
+ * @param tenantId - The tenant identifier.
+ * @param filename - The file name to resolve within the tenant directory.
+ * @param subdir - Optional subdirectory within the tenant storage path (default: "logs").
  */
-export function tenantPath(tenantId: string, filename: string): string {
+export function tenantPath(tenantId: string, filename: string, subdir = 'logs'): string {
   const tenant = resolveTenant(tenantId);
-  const dir = path.resolve(process.cwd(), tenant.storagePath, 'logs');
+  const dir = path.resolve(process.cwd(), tenant.storagePath, subdir);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }

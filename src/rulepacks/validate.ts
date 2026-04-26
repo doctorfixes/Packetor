@@ -3,7 +3,7 @@ export function validateRulePack(rp: {
   factRules?: unknown;
   timelineRules?: unknown;
   riskFlags?: unknown;
-}) {
+}): boolean {
   if (!rp.template) throw new Error("Rule-pack missing template");
   if (!rp.factRules) throw new Error("Rule-pack missing factRules");
   if (!rp.timelineRules) throw new Error("Rule-pack missing timelineRules");
