@@ -32,5 +32,3 @@ describe("extractTextFromPdf()", () => {
     await expect(extractTextFromPdf(garbage)).rejects.toThrow();
   });
 });
-
-
