@@ -93,9 +93,9 @@ header .tagline {
   color: #333;
 }
 
-.deterministic-note {
+.why .deterministic-note {
   font-weight: 600;
-  color: #1e3a8a !important;
+  color: #1e3a8a;
 }
 
 .how-it-works ol {
