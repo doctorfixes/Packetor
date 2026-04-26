@@ -1,7 +1,7 @@
 {
   "insurance": ["v1"],
-  "healthcare": [],
-  "logistics": [],
-  "legal": [],
-  "construction": []
+  "healthcare": ["v1"],
+  "logistics": ["v1"],
+  "legal": ["v1"],
+  "construction": ["v1"]
 }
