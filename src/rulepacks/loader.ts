@@ -1,6 +1,7 @@
 import path from 'path';
 import { Fact } from '../structuring/extractFacts';
 import { TimelineEntry } from '../structuring/buildTimeline';
+import { validateRulePack } from './validate';
 
 export interface RulePack {
   name: string;
@@ -70,13 +71,22 @@ export async function loadRulePack(identifier: string): Promise<RulePack | null>
       detectRiskFlags?: (text: string) => string[];
     };
 
-    return {
+    const rp = {
       name: parts[0],
       version: parts[1],
       extractFacts: mod.extractFacts,
       extractTimeline: timelineMod.extractTimeline,
       detectRiskFlags: riskMod.detectRiskFlags,
     };
+
+    validateRulePack({
+      template: parts.join('/'),
+      factRules: rp.extractFacts,
+      timelineRules: rp.extractTimeline,
+      riskFlags: rp.detectRiskFlags,
+    });
+
+    return rp;
   } catch {
     console.warn(`Rule-pack "${identifier}" could not be loaded.`);
     return null;

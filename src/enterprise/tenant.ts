@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 /**
  * Tenant routing scaffolding (v1.0 placeholder).
  *
@@ -35,4 +37,16 @@ export function registerTenant(tenant: Tenant): void {
  */
 export function resolveTenant(tenantId: string): Tenant {
   return tenantRegistry.get(tenantId) ?? DEFAULT_TENANT;
+}
+
+/**
+ * Extract the tenant ID from an HTTP request.
+ * Reads the x-tenant-id header; falls back to "default".
+ */
+export function getTenant(req: Request): string {
+  const header = req.headers['x-tenant-id'];
+  if (typeof header === 'string' && header.trim()) {
+    return header.trim();
+  }
+  return 'default';
 }

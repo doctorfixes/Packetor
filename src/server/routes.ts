@@ -1,6 +1,7 @@
 import { Application, Request, Response } from 'express';
 import { UploadedFile } from 'express-fileupload';
 import { generatePacketFromFile, generatePacketFromText } from '../api/packet';
+import { getTenant } from '../enterprise/tenant';
 
 export function registerRoutes(app: Application): void {
   app.post('/api/packet/file', async (req: Request, res: Response) => {
@@ -11,7 +12,8 @@ export function registerRoutes(app: Application): void {
       }
       const uploaded = req.files.file as UploadedFile;
       const rulepack = typeof req.body.rulepack === 'string' ? req.body.rulepack : undefined;
-      const packet = await generatePacketFromFile(uploaded, rulepack);
+      const tenant = getTenant(req);
+      const packet = await generatePacketFromFile(uploaded, rulepack, tenant);
       res.json({ packet });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -26,7 +28,8 @@ export function registerRoutes(app: Application): void {
         res.status(400).json({ error: 'Missing or invalid "text" field.' });
         return;
       }
-      const packet = await generatePacketFromText(text, rulepack);
+      const tenant = getTenant(req);
+      const packet = await generatePacketFromText(text, rulepack, tenant);
       res.json({ packet });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

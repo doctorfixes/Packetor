@@ -48,3 +48,15 @@ export function listPackets(tenantId: string): string[] {
   }
   return fs.readdirSync(dir).filter((f) => f.endsWith('.md') || f.endsWith('.json'));
 }
+
+/**
+ * Resolve a tenant-scoped file path, creating the parent directory if needed.
+ */
+export function tenantPath(tenantId: string, filename: string): string {
+  const tenant = resolveTenant(tenantId);
+  const dir = path.resolve(process.cwd(), tenant.storagePath, 'logs');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  return path.join(dir, filename);
+}
