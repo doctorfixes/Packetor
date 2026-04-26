@@ -1,5 +1,5 @@
 /**
- * Salesforce integration stub (v1.0 placeholder).
+ * Salesforce integration adapter (v1.0).
  *
  * Provides the interface for pushing and querying packets
  * via the Salesforce REST API.
@@ -9,6 +9,15 @@
  * 2. Store OAuth2 credentials in environment variables
  * 3. Replace stub bodies with real Salesforce REST API calls
  */
+
+import { StructuredPacket } from '../../structuring/structurePacket';
+import {
+  IntegrationAdapter,
+  IntegrationResult,
+  IntegrationLogEntry,
+  logIntegration,
+  packetHash,
+} from './adapter';
 
 export interface SalesforceConfig {
   instanceUrl: string;
@@ -49,4 +58,45 @@ export async function queryFromSalesforce(
     `Salesforce stub: would run SOQL query on ${config.instanceUrl}`
   );
   return '';
+}
+
+/**
+ * IntegrationAdapter implementation for Salesforce REST + OAuth.
+ * Resolves configuration from environment variables at send-time.
+ */
+export class SalesforceAdapter implements IntegrationAdapter {
+  readonly name = 'salesforce';
+
+  constructor(private readonly config: SalesforceConfig) {}
+
+  async send(packet: StructuredPacket, tenant: string): Promise<IntegrationResult> {
+    const start = Date.now();
+    let responseId = '';
+    let resourceUrl = '';
+    let status: IntegrationLogEntry['status'] = 'success';
+    let error: string | undefined;
+
+    try {
+      resourceUrl = await pushToSalesforce(this.config, 'Case', { body: packet.rawText });
+      responseId = resourceUrl.split('/').pop() || '';
+    } catch (err) {
+      status = 'error';
+      error = err instanceof Error ? err.message : String(err);
+      throw err;
+    } finally {
+      const entry: IntegrationLogEntry = {
+        timestamp: new Date().toISOString(),
+        tenant,
+        integration: this.name,
+        status,
+        latencyMs: Date.now() - start,
+        packetHash: packetHash(packet),
+        responseId,
+        ...(error !== undefined ? { error } : {}),
+      };
+      logIntegration(entry);
+    }
+
+    return { responseId, resourceUrl };
+  }
 }

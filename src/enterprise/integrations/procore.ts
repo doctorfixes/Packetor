@@ -1,5 +1,5 @@
 /**
- * Procore integration stub (v1.0 placeholder).
+ * Procore integration adapter (v1.0).
  *
  * Provides the interface for submitting and retrieving packets
  * via the Procore construction management platform.
@@ -9,6 +9,15 @@
  * 2. Store credentials in environment variables
  * 3. Replace stub bodies with real Procore REST API calls
  */
+
+import { StructuredPacket } from '../../structuring/structurePacket';
+import {
+  IntegrationAdapter,
+  IntegrationResult,
+  IntegrationLogEntry,
+  logIntegration,
+  packetHash,
+} from './adapter';
 
 export interface ProcoreConfig {
   baseUrl: string;
@@ -49,4 +58,46 @@ export async function downloadFromProcore(
     `Procore download stub: would download "${filename}" from project=${config.projectId}`
   );
   return '';
+}
+
+/**
+ * IntegrationAdapter implementation for Procore REST API.
+ * Resolves configuration from environment variables at send-time.
+ */
+export class ProcoreAdapter implements IntegrationAdapter {
+  readonly name = 'procore';
+
+  constructor(private readonly config: ProcoreConfig) {}
+
+  async send(packet: StructuredPacket, tenant: string): Promise<IntegrationResult> {
+    const start = Date.now();
+    const filename = `${packet.sourceName.replace(/[^a-zA-Z0-9._-]/g, '_')}-${Date.now()}.md`;
+    let responseId = '';
+    let resourceUrl = '';
+    let status: IntegrationLogEntry['status'] = 'success';
+    let error: string | undefined;
+
+    try {
+      resourceUrl = await uploadToProcore(this.config, filename, packet.rawText);
+      responseId = filename;
+    } catch (err) {
+      status = 'error';
+      error = err instanceof Error ? err.message : String(err);
+      throw err;
+    } finally {
+      const entry: IntegrationLogEntry = {
+        timestamp: new Date().toISOString(),
+        tenant,
+        integration: this.name,
+        status,
+        latencyMs: Date.now() - start,
+        packetHash: packetHash(packet),
+        responseId,
+        ...(error !== undefined ? { error } : {}),
+      };
+      logIntegration(entry);
+    }
+
+    return { responseId, resourceUrl };
+  }
 }
