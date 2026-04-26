@@ -69,4 +69,44 @@ describe("detectDrift()", () => {
     expect(report.uniqueTemplates).toContain("v1");
     expect(report.uniqueTemplates).toContain("v2");
   });
+
+  it("collects unique rulepack versions", () => {
+    const entries = [
+      { ...baseEntry(), rulepackVersion: "insurance/v1" },
+      { ...baseEntry(), rulepackVersion: "legal/v1" },
+    ];
+    writeLog(logFile, entries);
+    const report = detectDrift(logFile);
+    expect(report.uniqueRulepacks).toContain("insurance/v1");
+    expect(report.uniqueRulepacks).toContain("legal/v1");
+  });
+
+  it("collects unique engine versions", () => {
+    const entries = [
+      { ...baseEntry(), engineVersion: "0.1.0" },
+      { ...baseEntry(), engineVersion: "0.2.0" },
+    ];
+    writeLog(logFile, entries);
+    const report = detectDrift(logFile);
+    expect(report.engineVersions).toContain("0.1.0");
+    expect(report.engineVersions).toContain("0.2.0");
+  });
+
+  it("handles an empty log file gracefully", () => {
+    fs.writeFileSync(logFile, "", "utf8");
+    const report = detectDrift(logFile);
+    expect(report.totalPackets).toBe(0);
+    expect(report.duplicateInputHashes).toEqual([]);
+  });
+
+  it("does not report drift when multiple inputs each have unique outputs", () => {
+    const entries = [
+      { ...baseEntry(), inputHash: "hash-1", outputHash: "out-1" },
+      { ...baseEntry(), inputHash: "hash-2", outputHash: "out-2" },
+    ];
+    writeLog(logFile, entries);
+    const report = detectDrift(logFile);
+    expect(report.duplicateInputHashes).toEqual([]);
+    expect(report.totalPackets).toBe(2);
+  });
 });
